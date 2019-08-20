@@ -6,10 +6,10 @@
       "type": "router",
       "realms": [
         {
-          "name": "dots",
+          "name": "demo",
           "roles": [
             {
-              "name": "dots-backend",
+              "name": "anonymous",
               "permissions": [
                 {
                   "uri": "",
@@ -18,26 +18,6 @@
                     "call": true,
                     "register": true,
                     "publish": true,
-                    "subscribe": true
-                  },
-                  "disclose": {
-                    "caller": false,
-                    "publisher": false
-                  },
-                  "cache": true
-                }
-              ]
-            },
-            {
-              "name": "dots-frontend",
-              "permissions": [
-                {
-                  "uri": "",
-                  "match": "prefix",
-                  "allow": {
-                    "call": true,
-                    "register": false,
-                    "publish": false,
                     "subscribe": true
                   },
                   "disclose": {
@@ -56,27 +36,12 @@
           "type": "web",
           "endpoint": {
             "type": "tcp",
-            "port": "$WAMP_DOTS_PORT"
+            "port": "$WAMP_DEMO_PORT"
           },
           "paths": {
             "ws": {
               "type": "websocket",
-              "serializers": ["json"],
-              "auth": {
-                "ticket": {
-                  "type": "static",
-                  "principals": {
-                    "dots-backend": {
-                      "ticket": "${WAMP_DOTS_BACKEND_SECRET}",
-                      "role": "dots-backend"
-                    },
-                    "dots-frontend": {
-                      "ticket": "${WAMP_DOTS_FRONTEND_SECRET}",
-                      "role": "dots-frontend"
-                    }
-                  }
-                }
-              }
+              "serializers": ["json"]
             }
           }
         }

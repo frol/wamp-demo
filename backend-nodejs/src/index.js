@@ -1,29 +1,32 @@
 const autobahn = require("autobahn");
 
 const wamp = new autobahn.Connection({
-  realm: "dots",
+  realm: "demo",
   transports: [
     {
-      url: process.env.WAMP_DOTS_URL || "ws://localhost:8080/ws",
+      url: process.env.WAMP_DEMO_URL || "ws://localhost:8080/ws",
       type: "websocket"
     }
   ],
-  authmethods: ["ticket"],
-  authid: "dots-backend",
-  onchallenge: (session, method, extra) => {
-    if (method === "ticket") {
-      return process.env.WAMP_DOTS_BACKEND_SECRET || "backend";
-    }
-    throw "WAMP authentication error: unsupported challenge method";
-  },
+  //authmethods: ["ticket"],
+  //authid: "demo-backend",
+  //onchallenge: (session, method, extra) => {
+  //  if (method === "ticket") {
+  //    return process.env.WAMP_DEMO_BACKEND_SECRET || "backend";
+  //  }
+  //  throw "WAMP authentication error: unsupported challenge method";
+  //},
   retry_if_unreachable: true,
   max_retries: Number.MAX_SAFE_INTEGER,
   max_retry_delay: 10
 });
 
 const handlers = {
-  "com.dots.test-js": async (args) => {
+  "com.demo.test-js": async (args) => {
     console.log("TEST-JS received args:", args);
+    console.log("Sending a message to Python");
+    const result = await wamp.session.call("com.demo.test-python", args);
+    console.log("Received from test-python:", result);
     return 42;
   },
 };

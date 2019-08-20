@@ -1,0 +1,34 @@
+version: '3'
+
+services:
+  wamp:
+    build: ./wamp
+    environment:
+      - WAMP_DEMO_PORT=8080
+      - WAMP_DEMO_BACKEND_SECRET=backend
+      - WAMP_DEMO_FRONTEND_SECRET=front
+    ports:
+      - 8080:8080
+
+  backend-python:
+    build: ./backend-python
+    environment:
+      - WAMP_DEMO_URL=ws://wamp:8080/ws
+      - WAMP_DEMO_BACKEND_SECRET=backend
+      - PYTHONUNBUFFERED=1
+
+  backend-nodejs:
+    build: ./backend-nodejs
+    environment:
+      - WAMP_DEMO_URL=ws://wamp:8080/ws
+      - WAMP_DEMO_BACKEND_SECRET=backend
+
+  frontend:
+    build: ./frontend
+    environment:
+      - PORT=3000
+      - WAMP_DEMO_URL=ws://localhost:8080/ws
+      - WAMP_DEMO_INTERNAL_URL=ws://wamp:8080/ws
+      - WAMP_DEMO_FRONTEND_SECRET=front
+    ports:
+      - 3000:3000

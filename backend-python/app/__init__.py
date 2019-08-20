@@ -1,20 +1,27 @@
+import asyncio
+import os
+
 from autobahn.asyncio.component import Component
 from autobahn.asyncio.component import run
 
 comp = Component()
 
-@comp.register('com.dots.test')
+@comp.register('com.demo.test-python')
 async def test(*args, **kwargs):
-    print("test begin")
-    import asyncio
-    await asyncio.sleep(10)
-    print('test end')
+    print("Test handler has been called with args:", args, " Sleeping for 4 seconds...")
+    await asyncio.sleep(4)
+    print("Test handler has slept for 4 seconds.")
+    if args != ('data-from-python',):
+        print("Calling JavaScript...")
+        result = await comp._session.call('com.demo.test-js', 'data-from-python')
+        print("JavaScript returned: ", result)
     return 42
 
 @comp.on_join
 async def joined(session, details):
-    print("session ready")
-    await session.call('com.dots.test-js', 'hi', 123)
+    print("We are connected!")
+    print("Let's call JavaScript side")
+    await session.call('com.demo.test-js', 'hi', 123)
 
 
 class App:
@@ -28,24 +35,25 @@ class App:
                 0,
                 {
                     'type': 'websocket',
-                    'url': 'ws://localhost:8080/ws',
+                    'url': os.getenv('WAMP_DEMO_URL', 'ws://localhost:8080/ws'),
                     'serializers': ['json'],
                 },
                 component._check_native_endpoint
             )
         ]
-        component._realm = "dots"
-        component._authentication = {
-            "ticket": {
-                # this key should be loaded from disk, database etc never burned into code like this...
-                'ticket': 'backend',
-                'authid': 'dots-backend',
-            },
-        }
+        component._realm = "demo"
+        #component._authentication = {
+        #    "ticket": {
+        #        'ticket': os.getenv('WAMP_DEMO_BACKEND_SECRET', 'backend'),
+        #        'authid': 'demo-backend',
+        #    },
+        #}
         self.components.append(component)
 
     def run(self):
+        print("Running...")
         run(self.components)
+        print("Bye.")
 
 
 def create_app():
